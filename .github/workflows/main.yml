@@ -1,0 +1,39 @@
+name: Build Rolling Bass Lab
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-2025-vs2026
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get latest CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Show CMake version
+        run: cmake --version
+
+      - name: Configure (Visual Studio 18 2026)
+        run: cmake -S . -B build -G "Visual Studio 18 2026" -A x64
+
+      - name: Build Release
+        run: cmake --build build --config Release --parallel
+
+      - name: Upload VST3
+        uses: actions/upload-artifact@v4
+        with:
+          name: RollingBassLab-VST3-Windows
+          path: build/RollingBassLab_artefacts/Release/VST3/
+          if-no-files-found: error
+
+      - name: Upload Standalone app
+        uses: actions/upload-artifact@v4
+        with:
+          name: RollingBassLab-Standalone-Windows
+          path: build/RollingBassLab_artefacts/Release/Standalone/
+          if-no-files-found: warn
